@@ -1,5 +1,5 @@
 using System;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using System.Text.Json;
 
 public class DatabaseHelper
@@ -8,13 +8,13 @@ public class DatabaseHelper
     
     public DatabaseHelper(string dbPath)
     {
-        connectionString = $"Data Source={dbPath};Version=3;";
+        connectionString = $"Data Source={dbPath}";
         InitializeDatabase();
     }
     
     private void InitializeDatabase()
     {
-        using (var connection = new SQLiteConnection(connectionString))
+        using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
             string createTables = @"
@@ -55,8 +55,9 @@ public class DatabaseHelper
                 );
             ";
             
-            using (var command = new SQLiteCommand(createTables, connection))
+            using (var command = connection.CreateCommand())
             {
+                command.CommandText = createTables;
                 command.ExecuteNonQuery();
             }
         }
@@ -64,14 +65,14 @@ public class DatabaseHelper
     
     public int AddClass(string name, string comment)
     {
-        using (var connection = new SQLiteConnection(connectionString))
+        using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
-            string sql = "INSERT INTO Classes (Name, Comment) VALUES (@name, @comment); SELECT last_insert_rowid();";
-            using (var command = new SQLiteCommand(sql, connection))
+            using (var command = connection.CreateCommand())
             {
-                command.Parameters.AddWithValue("@name", name);
-                command.Parameters.AddWithValue("@comment", comment ?? "");
+                command.CommandText = "INSERT INTO Classes (Name, Comment) VALUES ($name, $comment); SELECT last_insert_rowid();";
+                command.Parameters.AddWithValue("$name", name);
+                command.Parameters.AddWithValue("$comment", comment ?? "");
                 return Convert.ToInt32(command.ExecuteScalar());
             }
         }
@@ -79,15 +80,15 @@ public class DatabaseHelper
     
     public void AddProperty(int classId, string name, string type)
     {
-        using (var connection = new SQLiteConnection(connectionString))
+        using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
-            string sql = "INSERT INTO Properties (ClassId, Name, Type) VALUES (@classId, @name, @type)";
-            using (var command = new SQLiteCommand(sql, connection))
+            using (var command = connection.CreateCommand())
             {
-                command.Parameters.AddWithValue("@classId", classId);
-                command.Parameters.AddWithValue("@name", name);
-                command.Parameters.AddWithValue("@type", type);
+                command.CommandText = "INSERT INTO Properties (ClassId, Name, Type) VALUES ($classId, $name, $type)";
+                command.Parameters.AddWithValue("$classId", classId);
+                command.Parameters.AddWithValue("$name", name);
+                command.Parameters.AddWithValue("$type", type);
                 command.ExecuteNonQuery();
             }
         }
@@ -95,15 +96,15 @@ public class DatabaseHelper
     
     public void AddMethod(int classId, string name, string signature)
     {
-        using (var connection = new SQLiteConnection(connectionString))
+        using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
-            string sql = "INSERT INTO Methods (ClassId, Name, Signature) VALUES (@classId, @name, @signature)";
-            using (var command = new SQLiteCommand(sql, connection))
+            using (var command = connection.CreateCommand())
             {
-                command.Parameters.AddWithValue("@classId", classId);
-                command.Parameters.AddWithValue("@name", name);
-                command.Parameters.AddWithValue("@signature", signature ?? "");
+                command.CommandText = "INSERT INTO Methods (ClassId, Name, Signature) VALUES ($classId, $name, $signature)";
+                command.Parameters.AddWithValue("$classId", classId);
+                command.Parameters.AddWithValue("$name", name);
+                command.Parameters.AddWithValue("$signature", signature ?? "");
                 command.ExecuteNonQuery();
             }
         }
@@ -113,14 +114,14 @@ public class DatabaseHelper
     {
         string jsonData = JsonSerializer.Serialize(instance);
         
-        using (var connection = new SQLiteConnection(connectionString))
+        using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
-            string sql = "INSERT INTO Instances (ClassName, JsonData) VALUES (@className, @jsonData); SELECT last_insert_rowid();";
-            using (var command = new SQLiteCommand(sql, connection))
+            using (var command = connection.CreateCommand())
             {
-                command.Parameters.AddWithValue("@className", className);
-                command.Parameters.AddWithValue("@jsonData", jsonData);
+                command.CommandText = "INSERT INTO Instances (ClassName, JsonData) VALUES ($className, $jsonData); SELECT last_insert_rowid();";
+                command.Parameters.AddWithValue("$className", className);
+                command.Parameters.AddWithValue("$jsonData", jsonData);
                 return Convert.ToInt32(command.ExecuteScalar());
             }
         }
@@ -128,14 +129,15 @@ public class DatabaseHelper
     
     public T GetInstance<T>(int id)
     {
-        using (var connection = new SQLiteConnection(connectionString))
+        using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
-            string sql = "SELECT JsonData FROM Instances WHERE Id = @id";
-            using (var command = new SQLiteCommand(sql, connection))
+            using (var command = connection.CreateCommand())
             {
-                command.Parameters.AddWithValue("@id", id);
-                string jsonData = command.ExecuteScalar()?.ToString();
+                command.CommandText = "SELECT JsonData FROM Instances WHERE Id = $id";
+                command.Parameters.AddWithValue("$id", id);
+                var result = command.ExecuteScalar();
+                string jsonData = result?.ToString();
                 
                 if (string.IsNullOrEmpty(jsonData))
                     return default(T);
@@ -147,19 +149,21 @@ public class DatabaseHelper
     
     public void DisplayAllInstances()
     {
-        using (var connection = new SQLiteConnection(connectionString))
+        using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
-            string sql = "SELECT Id, ClassName, JsonData FROM Instances";
-            using (var command = new SQLiteCommand(sql, connection))
-            using (var reader = command.ExecuteReader())
+            using (var command = connection.CreateCommand())
             {
-                Console.WriteLine("\n=== All Instances ===");
-                while (reader.Read())
+                command.CommandText = "SELECT Id, ClassName, JsonData FROM Instances";
+                using (var reader = command.ExecuteReader())
                 {
-                    Console.WriteLine($"\nID: {reader["Id"]}");
-                    Console.WriteLine($"Class: {reader["ClassName"]}");
-                    Console.WriteLine($"Data: {reader["JsonData"]}");
+                    Console.WriteLine("\n=== All Instances ===");
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"\nID: {reader["Id"]}");
+                        Console.WriteLine($"Class: {reader["ClassName"]}");
+                        Console.WriteLine($"Data: {reader["JsonData"]}");
+                    }
                 }
             }
         }
@@ -167,48 +171,62 @@ public class DatabaseHelper
     
     public void DisplayClassMetadata()
     {
-        using (var connection = new SQLiteConnection(connectionString))
+        using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
             
             Console.WriteLine("\n=== Classes Metadata ===");
             
-            string classSql = "SELECT * FROM Classes";
-            using (var cmd = new SQLiteCommand(classSql, connection))
-            using (var reader = cmd.ExecuteReader())
+            using (var cmd = connection.CreateCommand())
             {
-                while (reader.Read())
+                cmd.CommandText = "SELECT * FROM Classes";
+                using (var reader = cmd.ExecuteReader())
                 {
-                    int classId = Convert.ToInt32(reader["Id"]);
-                    Console.WriteLine($"\n[Class {classId}] {reader["Name"]}");
-                    Console.WriteLine($"  Comment: {reader["Comment"]}");
-                    
-                    var propSql = "SELECT * FROM Properties WHERE ClassId = @classId";
-                    using (var propCmd = new SQLiteCommand(propSql, connection))
+                    while (reader.Read())
                     {
-                        propCmd.Parameters.AddWithValue("@classId", classId);
-                        using (var propReader = propCmd.ExecuteReader())
-                        {
-                            Console.WriteLine("  Properties:");
-                            while (propReader.Read())
-                            {
-                                Console.WriteLine($"    - {propReader["Name"]} ({propReader["Type"]})");
-                            }
-                        }
+                        int classId = Convert.ToInt32(reader["Id"]);
+                        Console.WriteLine($"\n[Class {classId}] {reader["Name"]}");
+                        Console.WriteLine($"  Comment: {reader["Comment"]}");
                     }
-                    
-                    var methodSql = "SELECT * FROM Methods WHERE ClassId = @classId";
-                    using (var methodCmd = new SQLiteCommand(methodSql, connection))
+                }
+            }
+            
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = "SELECT c.Name as ClassName, p.Name, p.Type FROM Properties p JOIN Classes c ON p.ClassId = c.Id";
+                using (var reader = cmd.ExecuteReader())
+                {
+                    string currentClass = "";
+                    while (reader.Read())
                     {
-                        methodCmd.Parameters.AddWithValue("@classId", classId);
-                        using (var methodReader = methodCmd.ExecuteReader())
+                        string className = reader["ClassName"].ToString();
+                        if (className != currentClass)
                         {
-                            Console.WriteLine("  Methods:");
-                            while (methodReader.Read())
-                            {
-                                Console.WriteLine($"    - {methodReader["Name"]}{methodReader["Signature"]}");
-                            }
+                            if (currentClass != "") Console.WriteLine();
+                            Console.WriteLine($"  {className} Properties:");
+                            currentClass = className;
                         }
+                        Console.WriteLine($"    - {reader["Name"]} ({reader["Type"]})");
+                    }
+                }
+            }
+            
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = "SELECT c.Name as ClassName, m.Name, m.Signature FROM Methods m JOIN Classes c ON m.ClassId = c.Id";
+                using (var reader = cmd.ExecuteReader())
+                {
+                    string currentClass = "";
+                    while (reader.Read())
+                    {
+                        string className = reader["ClassName"].ToString();
+                        if (className != currentClass)
+                        {
+                            if (currentClass != "") Console.WriteLine();
+                            Console.WriteLine($"  {className} Methods:");
+                            currentClass = className;
+                        }
+                        Console.WriteLine($"    - {reader["Name"]}{reader["Signature"]}");
                     }
                 }
             }

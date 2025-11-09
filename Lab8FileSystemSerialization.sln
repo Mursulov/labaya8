@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimalDatabase", "AnimalDatabase\AnimalDatabase.csproj", "{330FF757-5A4E-4FC8-BE1B-530ECA62CA65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimalQuery", "AnimalQuery\AnimalQuery.csproj", "{2EFE7A51-7AA5-494F-BE06-5ADD78C5D4F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSearchCompression", "FileSearchCompression\FileSearchCompression.csproj", "{59A41D85-215E-4F4A-A2FF-67701812ED99}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab8.Tests", "Lab8.Tests\Lab8.Tests.csproj", "{263CD5BF-AD20-4CB8-8936-FA5BBC9ED50E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{330FF757-5A4E-4FC8-BE1B-530ECA62CA65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{330FF757-5A4E-4FC8-BE1B-530ECA62CA65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{330FF757-5A4E-4FC8-BE1B-530ECA62CA65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{330FF757-5A4E-4FC8-BE1B-530ECA62CA65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EFE7A51-7AA5-494F-BE06-5ADD78C5D4F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EFE7A51-7AA5-494F-BE06-5ADD78C5D4F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EFE7A51-7AA5-494F-BE06-5ADD78C5D4F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EFE7A51-7AA5-494F-BE06-5ADD78C5D4F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59A41D85-215E-4F4A-A2FF-67701812ED99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59A41D85-215E-4F4A-A2FF-67701812ED99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59A41D85-215E-4F4A-A2FF-67701812ED99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59A41D85-215E-4F4A-A2FF-67701812ED99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{263CD5BF-AD20-4CB8-8936-FA5BBC9ED50E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{263CD5BF-AD20-4CB8-8936-FA5BBC9ED50E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{263CD5BF-AD20-4CB8-8936-FA5BBC9ED50E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{263CD5BF-AD20-4CB8-8936-FA5BBC9ED50E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

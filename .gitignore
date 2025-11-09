@@ -1,0 +1,30 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.pdb
+*.log
+
+# Visual Studio
+.vs/
+
+# Test results
+TestResults/
+*.trx
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+
+# Database files (optional - comment out if you want to commit .db files)
+*.db
+*.db-shm
+*.db-wal
+
+# NuGet
+*.nupkg
+
+# Others
+.DS_Store

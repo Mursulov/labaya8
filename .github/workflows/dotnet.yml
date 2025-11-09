@@ -1,0 +1,70 @@
+name: .NET Build and Test
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Display .NET version
+      run: dotnet --version
+      
+    - name: Restore dependencies
+      run: dotnet restore Lab8FileSystemSerialization.sln
+      
+    - name: Build solution
+      run: dotnet build Lab8FileSystemSerialization.sln --configuration Release --no-restore
+      
+    - name: Run AnimalDatabase
+      run: |
+        cd AnimalDatabase
+        dotnet run --configuration Release
+        
+    - name: Verify database creation
+      run: |
+        if [ -f "database/animals.db" ]; then
+          echo "✓ Database created successfully"
+          ls -lh database/animals.db
+        else
+          echo "✗ Database creation failed"
+          exit 1
+        fi
+        
+    - name: Run AnimalQuery
+      run: |
+        cd AnimalQuery
+        dotnet run --configuration Release
+        
+    - name: Test FileSearchCompression
+      run: |
+        cd FileSearchCompression
+        echo "Test file content" > ../database/test.txt
+        dotnet build --configuration Release
+        echo "✓ FileSearchCompression built successfully"
+        
+    - name: Run unit tests
+      run: dotnet test Lab8.Tests/Lab8.Tests.csproj --configuration Release --logger "console;verbosity=detailed"
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: build-artifacts
+        path: |
+          database/
+          **/bin/Release/
+        retention-days: 7
